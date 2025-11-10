@@ -24,7 +24,7 @@ func init() {
 		Name: "clip",
 		Handler: func(m twitch.PrivateMessage) (err error) {
 			args := strings.Split(m.Message, " ")
-			if args[0] != "`clip" && args[0] != "?clip" {
+			if args[0] != "`clip" && args[0] != "?clip" && args[0] != "`klip" {
 				return
 			}
 
@@ -33,9 +33,16 @@ func init() {
 				channel = args[1]
 			}
 
+			var platform string
+			if args[0] == "`klip" {
+				platform = "kick"
+			} else {
+				platform = "twitch"
+			}
+
 			req, _ := http.NewRequest("POST", "http://127.0.0.1:8989/clip/"+
 				url.PathEscape(channel)+
-				fmt.Sprintf("?creator_id=%s&parent_id=%s", m.User.ID, m.RoomID), nil)
+				fmt.Sprintf("?creator_id=%s&parent_id=%s&platform=%s", m.User.ID, m.RoomID, platform), nil)
 			res, err := api.Generic.Do(req)
 			if err != nil {
 				return
