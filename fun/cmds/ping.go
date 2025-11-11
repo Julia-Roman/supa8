@@ -35,6 +35,8 @@ func init() {
 				return
 			}
 
+			msPing := time.Since(m.Time).Milliseconds()
+
 			var mem runtime.MemStats
 			runtime.ReadMemStats(&mem)
 
@@ -51,17 +53,18 @@ func init() {
 			var ffmpegVer string
 			fmt.Sscanf(res[2], "ffmpeg version %s", &ffmpegVer)
 
-			_, err = Say(m.RoomID, fmt.Sprintf("pong!! %vms, commit:%s, %s, yt-dlp:%s, ffmpeg:%s, zbar:%s, %vMiB, up:%s, channels:%v, blocked:%v",
-				time.Since(m.Time).Milliseconds(),
+			_, err = Say(m.RoomID, fmt.Sprintf("pong!! %vms, %vMiB, up:%s, channels:%v, blocked:%v, commit:%s, %s, yt-dlp%s, ffmpeg%s, zbar%s",
+				msPing,
+				mem.Alloc/1024/1024,
+				time.Since(InitTime).Truncate(time.Second),
+				len(config.Meta.Channels),
+				len(Fun.BlockedUserIDs),
 				res[0],
 				runtime.Version(),
 				res[1],
 				ffmpegVer,
 				res[3],
-				mem.Alloc/1024/1024,
-				time.Since(InitTime).Truncate(time.Second),
-				len(config.Meta.Channels),
-				len(Fun.BlockedUserIDs)), m.ID)
+			), m.ID)
 			return
 		},
 	})
