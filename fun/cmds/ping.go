@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/0supa/supa8/config"
@@ -59,11 +60,11 @@ func init() {
 				time.Since(InitTime).Truncate(time.Second),
 				len(config.Meta.Channels),
 				len(Fun.BlockedUserIDs),
-				res[0],
+				strings.TrimSpace(res[0]),
 				runtime.Version(),
-				res[1],
+				strings.TrimSpace(res[1]),
 				ffmpegVer,
-				res[3],
+				strings.TrimSpace(res[3]),
 			), m.ID)
 			return
 		},
