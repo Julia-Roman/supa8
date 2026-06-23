@@ -48,7 +48,12 @@ func init() {
 				return
 			}
 
-			_, err = Say(m.RoomID, res.Data.Mutation.Message.ID, m.ID)
+			if len(res.Data) > 0 && res.Data[0].IsSent {
+				_, err = Say(m.RoomID, "message sent", m.ID)
+			} else {
+				_, err = Say(m.RoomID, "message not sent", m.ID)
+			}
+
 			return
 		},
 	})
