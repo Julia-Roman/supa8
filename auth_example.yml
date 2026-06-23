@@ -4,6 +4,9 @@ twitch:
     token: ""
     owner_token: "" # optional, for loading blocklist
     user_id: ""
+  helix:
+    client_id: ""
+    token: ""
 cloudflare:
   key: ""
   account_id: ""
