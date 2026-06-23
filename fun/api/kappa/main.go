@@ -39,7 +39,7 @@ func UploadFile(rc io.ReadCloser, fileName string, contentType string) (upload F
 	}
 	writer.Close()
 
-	res, err := api.Generic.Post("https://segs.lol/api/upload", writer.FormDataContentType(), fileBuf)
+	res, err := api.Generic.Post("https://kappa.lol/api/upload", writer.FormDataContentType(), fileBuf)
 	if err != nil {
 		return
 	}
