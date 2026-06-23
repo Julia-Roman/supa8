@@ -66,6 +66,7 @@ func Say(channelID string, message string, parentID string, ctx ...int) (respons
 	req, _ := http.NewRequest("POST", "https://api.twitch.tv/helix/chat/messages", bytes.NewBuffer(payload))
 	req.Header.Set("Client-Id", config.Auth.Twitch.Helix.ClientID)
 	req.Header.Set("Authorization", "Bearer "+config.Auth.Twitch.Helix.Token)
+	req.Header.Set("Content-Type", "application/json")
 
 	res, err := api.Generic.Do(req)
 	if err != nil {
