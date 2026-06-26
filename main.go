@@ -25,10 +25,11 @@ type LogChannels struct {
 }
 
 type LiveChannels []struct {
-	Name    string `json:"login"`
-	UserID  string `json:"uid"`
-	Viewers int    `json:"viewers"`
-	Type    string `json:"type"`
+	Name     string `json:"login"`
+	UserID   string `json:"uid"`
+	Viewers  int    `json:"viewers"`
+	Type     string `json:"type"`
+	Platform string `json:"platform"`
 }
 
 type JoinPayload struct {
@@ -84,10 +85,11 @@ func main() {
 
 			joinPayload := JoinPayload{}
 			for _, ch := range liveChannels {
-				if ch.Viewers < 10 || slices.Contains(ignored, ch.UserID) {
+				if ch.Platform != "twitch" || ch.Viewers < 10 || slices.Contains(ignored, ch.UserID) {
 					continue
 				}
-				resMsg.WriteString(" @" + ch.Name)
+				resMsg.WriteString(" @")
+				resMsg.WriteString(ch.Name)
 				joinPayload.Channels = append(joinPayload.Channels, ch.UserID)
 			}
 			if len(joinPayload.Channels) == 0 {
