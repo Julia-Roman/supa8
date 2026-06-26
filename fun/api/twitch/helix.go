@@ -15,9 +15,10 @@ import (
 )
 
 type TwitchSendMsgPayload struct {
-	ChannelID string `json:"broadcaster_id"`
-	SenderID  string `json:"sender_id"`
-	Message   string `json:"message"`
+	ChannelID     string `json:"broadcaster_id"`
+	SenderID      string `json:"sender_id"`
+	Message       string `json:"message"`
+	ReplyParentID string `json:"reply_parent_message_id,omitempty"`
 }
 
 type TwitchSendMsgResponse struct {
@@ -55,9 +56,10 @@ func Say(channelID string, message string, parentID string, ctx ...int) (respons
 	}
 
 	payload, err := json.Marshal(TwitchSendMsgPayload{
-		ChannelID: channelID,
-		SenderID:  config.Auth.Twitch.GQL.UserID,
-		Message:   message,
+		ChannelID:     channelID,
+		SenderID:      config.Auth.Twitch.GQL.UserID,
+		Message:       message,
+		ReplyParentID: parentID,
 	})
 	if err != nil {
 		return
