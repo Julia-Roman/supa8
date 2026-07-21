@@ -20,6 +20,7 @@ var cooldown = map[string]struct{}{}
 
 func init() {
 	links := regexp.MustCompile(`(?i)\S*tiktok\.com\/\S+|\S*(instagram|facebook)\.com\/(.+\/)?(reels?|p|share)\/\S+`)
+	restrictedVideo := regexp.MustCompile(`(?i)This post may not be comfortable|This content isn't available to everyone|Restricted Video`)
 	parentDir := "/var/www/fi.supa.sh/tiktok"
 
 	urlFix := strings.NewReplacer("/reels/", "/reel/", "/share/reel/", "/share/")
@@ -66,7 +67,7 @@ func init() {
 					log.Printf("yt-dlp error: %s:\n%s\n", err.Error(), exit.Stderr)
 
 					msg := string(exit.Stderr)
-					if strings.Contains(msg, "Restricted Video") || strings.Contains(msg, "This post may not be comfortable") {
+					if restrictedVideo.MatchString(msg) {
 						Say(m.RoomID, "🔞 Restricted Video", m.ID)
 					}
 
