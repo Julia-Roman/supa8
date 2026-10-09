@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -24,12 +25,42 @@ type LogChannels struct {
 	} `json:"channels"`
 }
 
-type LiveChannels []struct {
-	Name     string `json:"login"`
-	UserID   string `json:"uid"`
-	Viewers  int    `json:"viewers"`
-	Type     string `json:"type"`
+type LiveStream struct {
 	Platform string `json:"platform"`
+	Viewers  int    `json:"viewers"`
+	Channel  struct {
+		ID    string `json:"id"`
+		Login string `json:"login"`
+	} `json:"channel"`
+}
+
+type LivePage struct {
+	Streams    []LiveStream `json:"streams"`
+	NextOffset *int         `json:"nextOffset"`
+}
+
+func fetchLiveStreams() ([]LiveStream, error) {
+	streams := []LiveStream{}
+	offset := 0
+	for {
+		res, err := httpClient.Get("https://api.lurkology.com/v1/live?language=ro&offset=" + strconv.Itoa(offset) + "&limit=48")
+		if err != nil {
+			return nil, err
+		}
+
+		page := LivePage{}
+		err = json.NewDecoder(res.Body).Decode(&page)
+		res.Body.Close()
+		if err != nil {
+			return nil, err
+		}
+
+		streams = append(streams, page.Streams...)
+		if page.NextOffset == nil {
+			return streams, nil
+		}
+		offset = *page.NextOffset
+	}
 }
 
 type JoinPayload struct {
@@ -66,31 +97,23 @@ func main() {
 				ignored = append(ignored, ch.UserID)
 			}
 
-			res, err = httpClient.Get("https://api-tv.supa.sh/tags/ro")
+			liveStreams, err := fetchLiveStreams()
 			if err != nil {
 				log.Println(err)
 				continue
 			}
-
-			liveChannels := LiveChannels{}
-			err = json.NewDecoder(res.Body).Decode(&liveChannels)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-			res.Body.Close()
 
 			var resMsg strings.Builder
 			resMsg.WriteString("logs.supa.codes -> joining new channels:")
 
 			joinPayload := JoinPayload{}
-			for _, ch := range liveChannels {
-				if ch.Platform != "twitch" || ch.Viewers < 10 || slices.Contains(ignored, ch.UserID) {
+			for _, s := range liveStreams {
+				if s.Platform != "twitch" || s.Viewers < 10 || slices.Contains(ignored, s.Channel.ID) {
 					continue
 				}
 				resMsg.WriteString(" @")
-				resMsg.WriteString(ch.Name)
-				joinPayload.Channels = append(joinPayload.Channels, ch.UserID)
+				resMsg.WriteString(s.Channel.Login)
+				joinPayload.Channels = append(joinPayload.Channels, s.Channel.ID)
 			}
 			if len(joinPayload.Channels) == 0 {
 				continue
