@@ -41,7 +41,7 @@ func init() {
 					_, err = Say(m.RoomID, "already joined", m.ID)
 					return
 				}
-				Client.Join(user.Login)
+				Join(user.Login)
 				config.Meta.Channels = append(config.Meta.Channels, user.ID)
 			case "`part":
 				v = "-"
@@ -50,7 +50,7 @@ func init() {
 					_, err = Say(m.RoomID, "not joined", m.ID)
 					return
 				}
-				Client.Depart(user.Login)
+				Part(user.Login)
 				config.Meta.Channels = slices.Delete(config.Meta.Channels, i, i+1)
 			}
 
