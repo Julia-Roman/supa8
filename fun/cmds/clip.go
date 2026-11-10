@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"path"
 	"strings"
 
 	. "github.com/0supa/supa8/fun"
@@ -65,7 +66,7 @@ func init() {
 				return
 			}
 
-			_, err = Say(m.RoomID, "https://fi.supa.sh/clips/"+c.Path, m.ID)
+			_, err = Say(m.RoomID, "https://lurkology.com/clips?supa="+url.QueryEscape(strings.ReplaceAll(strings.TrimSuffix(c.Path, path.Ext(c.Path)), "/", "-")), m.ID)
 			return
 		},
 	})
