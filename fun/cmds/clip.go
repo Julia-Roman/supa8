@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strconv"
 	"strings"
 
 	. "github.com/0supa/supa8/fun"
@@ -34,6 +35,17 @@ func init() {
 				channel = args[1]
 			}
 
+			query := fmt.Sprintf("?creator_id=%s&parent_id=%s", m.User.ID, m.RoomID)
+			if len(args) >= 3 {
+				duration, err := strconv.Atoi(args[2])
+				if err != nil {
+					_, err = Say(m.RoomID, "duration must be a number of seconds (30-180)", m.ID)
+					return err
+				}
+				duration = max(30, min(duration, 180))
+				query += fmt.Sprintf("&duration=%d", duration)
+			}
+
 			var platform string
 			if args[0] == "`klip" {
 				platform = "kick"
@@ -42,8 +54,7 @@ func init() {
 			}
 
 			req, _ := http.NewRequest("POST", "http://127.0.0.1:8989/clip/"+
-				url.PathEscape(channel)+
-				fmt.Sprintf("?creator_id=%s&parent_id=%s&platform=%s", m.User.ID, m.RoomID, platform), nil)
+				url.PathEscape(channel)+query+"&platform="+platform, nil)
 			res, err := api.Generic.Do(req)
 			if err != nil {
 				return
